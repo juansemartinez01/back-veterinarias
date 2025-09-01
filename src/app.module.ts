@@ -7,7 +7,6 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { VeterinariasModule } from './veterinarias/veterinarias.module';
 import { FacturacionModule } from './facturacion/facturacion.module';
 import { ClientesModule } from './clientes/clientes.module';
-import { Paciente } from './pacientes/paciente.entity';
 import { PacientesModule } from './pacientes/pacientes.module';
 import { TurnosModule } from './turnos/turnos.module';
 import { ConsultasModule } from './consultas/consultas.module';
@@ -20,13 +19,12 @@ import { InsumosModule } from './insumos/insumos.module';
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
         type: 'postgres',
-        host: process.env.DB_HOST,
-        port: Number(process.env.DB_PORT),
-        username: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_DATABASE,
+        url: process.env.DATABASE_URL, // 👉 Railway te la da con ?sslmode=require
         autoLoadEntities: true,
-        synchronize: true, // 🔁 SOLO EN DEV
+        synchronize: true, // ⚠️ solo en desarrollo, en prod usá migrations
+        ssl: process.env.DATABASE_URL?.includes('sslmode=require')
+          ? { rejectUnauthorized: false }
+          : undefined,
       }),
     }),
     AuthModule,
@@ -39,10 +37,6 @@ import { InsumosModule } from './insumos/insumos.module';
     ConsultasModule,
     ImagenesModule,
     InsumosModule,
-    
-
-    
-    
   ],
 })
 export class AppModule {}
