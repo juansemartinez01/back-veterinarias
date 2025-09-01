@@ -1,6 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import * as nodeCrypto from 'node:crypto';
+
+// Polyfill para entornos donde global.crypto no está definido (Node 18)
+if (!(global as any).crypto || !(global as any).crypto.randomUUID) {
+  (global as any).crypto = nodeCrypto as any;
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
