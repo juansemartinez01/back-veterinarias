@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Turno } from './turno.entity';
 import { TurnosService } from './turnos.service';
 import { TurnosController } from './turnos.controller';
-import { TurnosEstadoModule } from 'src/turnos-estado/turnos-estado.module';
+import { TurnosEstadoModule } from '../turnos-estado/turnos-estado.module';
 import { NotificacionesModule } from 'src/notificaciones/notificaciones.module';
 
 @Module({
