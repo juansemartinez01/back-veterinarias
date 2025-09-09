@@ -7,6 +7,7 @@ import { UserRole } from './user-role.entity';
 
 @Injectable()
 export class RbacService {
+  
   constructor(
     @InjectRepository(Role) private rolesRepo: Repository<Role>,
     @InjectRepository(Permission) private permsRepo: Repository<Permission>,
@@ -22,6 +23,9 @@ export class RbacService {
     return this.rolesRepo.save(role);
   }
 
+  async countRoles() {
+    return this.rolesRepo.count();
+  }
   async ensurePermissions(codes: string[]) {
     for (const code of codes) {
       const exists = await this.permsRepo.findOne({ where: { code } });
