@@ -21,6 +21,13 @@ export class RolesGuard implements CanActivate {
     const tenantId = user.veterinariaId;
     if (!tenantId) throw new ForbiddenException('Falta tenant');
 
+    const totalRoles = await this.rbac.countRoles();
+    if (totalRoles === 0) {
+      // Permitir crear el primer rol sin validar
+      return true;
+    }
+
+
     const has = await this.rbac.userHasAnyRole(user.id, tenantId, required);
     if (!has) throw new ForbiddenException('Rol insuficiente');
     return true;
