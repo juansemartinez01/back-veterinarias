@@ -4,7 +4,7 @@ import { Turno } from './turno.entity';
 import { TurnosService } from './turnos.service';
 import { TurnosController } from './turnos.controller';
 import { TurnosEstadoModule } from '../turnos-estado/turnos-estado.module';
-import { NotificacionesModule } from 'src/notificaciones/notificaciones.module';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Turno]),NotificacionesModule,TurnosEstadoModule],
