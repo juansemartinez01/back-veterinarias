@@ -44,7 +44,7 @@ import { TagsModule } from './tags/tags.module';
         type: 'postgres',
         url: process.env.DATABASE_URL,
         autoLoadEntities: true,
-        synchronize: process.env.NODE_ENV !== 'production',
+        synchronize: true,//process.env.NODE_ENV !== 'production',
         ssl: process.env.DATABASE_URL?.includes('sslmode=require')
           ? { rejectUnauthorized: false }
           : undefined,
