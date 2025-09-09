@@ -29,8 +29,8 @@ let TurnosController = class TurnosController {
     listar(user) {
         return this.service.listarPorVeterinaria(user.veterinariaId);
     }
-    actualizarEstado(id, estado) {
-        return this.service.actualizarEstado(id, estado);
+    actualizarEstado(id, body, user) {
+        return this.service.cambiarEstado(id, body.estado, user === null || user === void 0 ? void 0 : user.id, body === null || body === void 0 ? void 0 : body.motivo);
     }
 };
 exports.TurnosController = TurnosController;
@@ -50,11 +50,12 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TurnosController.prototype, "listar", null);
 __decorate([
-    (0, common_1.Patch)(':id/:estado'),
+    (0, common_1.Patch)(':id/estado'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Param)('estado')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", void 0)
 ], TurnosController.prototype, "actualizarEstado", null);
 exports.TurnosController = TurnosController = __decorate([

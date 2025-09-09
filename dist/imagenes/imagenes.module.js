@@ -12,18 +12,17 @@ const typeorm_1 = require("@nestjs/typeorm");
 const imagen_paciente_entity_1 = require("./imagen-paciente.entity");
 const imagenes_service_1 = require("./imagenes.service");
 const imagenes_controller_1 = require("./imagenes.controller");
+const media_module_1 = require("../media/media.module");
 const pacientes_module_1 = require("../pacientes/pacientes.module");
 let ImagenesModule = class ImagenesModule {
 };
 exports.ImagenesModule = ImagenesModule;
 exports.ImagenesModule = ImagenesModule = __decorate([
     (0, common_1.Module)({
-        imports: [
-            typeorm_1.TypeOrmModule.forFeature([imagen_paciente_entity_1.ImagenPaciente]),
-            pacientes_module_1.PacientesModule,
-        ],
+        imports: [typeorm_1.TypeOrmModule.forFeature([imagen_paciente_entity_1.ImagenPaciente]), media_module_1.MediaModule, pacientes_module_1.PacientesModule],
         providers: [imagenes_service_1.ImagenesService],
         controllers: [imagenes_controller_1.ImagenesController],
+        exports: [imagenes_service_1.ImagenesService],
     })
 ], ImagenesModule);
 //# sourceMappingURL=imagenes.module.js.map

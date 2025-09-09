@@ -20,11 +20,12 @@ export class TurnosController {
     return this.service.listarPorVeterinaria(user.veterinariaId);
   }
 
-  @Patch(':id/:estado')
+  @Patch(':id/estado')
   actualizarEstado(
     @Param('id') id: string,
-    @Param('estado') estado: 'pendiente' | 'atendido' | 'cancelado',
+    @Body() body: { estado: 'pendiente' | 'confirmado' | 'atendido' | 'cancelado' | 'no_asistio'; motivo?: string },
+    @CurrentUser() user: any,
   ) {
-    return this.service.actualizarEstado(id, estado);
+    return this.service.cambiarEstado(id, body.estado, user?.id, body?.motivo);
   }
 }

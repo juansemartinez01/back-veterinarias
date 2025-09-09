@@ -12,12 +12,14 @@ const typeorm_1 = require("@nestjs/typeorm");
 const turno_entity_1 = require("./turno.entity");
 const turnos_service_1 = require("./turnos.service");
 const turnos_controller_1 = require("./turnos.controller");
+const turnos_estado_module_1 = require("../turnos-estado/turnos-estado.module");
+const notificaciones_module_1 = require("../notificaciones/notificaciones.module");
 let TurnosModule = class TurnosModule {
 };
 exports.TurnosModule = TurnosModule;
 exports.TurnosModule = TurnosModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([turno_entity_1.Turno])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([turno_entity_1.Turno]), notificaciones_module_1.NotificacionesModule, turnos_estado_module_1.TurnosEstadoModule],
         providers: [turnos_service_1.TurnosService],
         controllers: [turnos_controller_1.TurnosController],
     })

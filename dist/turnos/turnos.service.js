@@ -17,9 +17,13 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const turno_entity_1 = require("./turno.entity");
 const typeorm_2 = require("typeorm");
+const notificaciones_service_1 = require("../notificaciones/notificaciones.service");
+const estado_turno_service_1 = require("../turnos-estado/estado-turno.service");
 let TurnosService = class TurnosService {
-    constructor(repo) {
+    constructor(repo, notificaciones, estadoTurno) {
         this.repo = repo;
+        this.notificaciones = notificaciones;
+        this.estadoTurno = estadoTurno;
     }
     async crear(dto, veterinaria) {
         const turno = this.repo.create({
@@ -30,7 +34,9 @@ let TurnosService = class TurnosService {
             veterinaria,
             estado: 'pendiente',
         });
-        return this.repo.save(turno);
+        const saved = await this.repo.save(turno);
+        await this.notificaciones.programarParaTurno(saved.id, veterinaria.id);
+        return saved;
     }
     async listarPorVeterinaria(veterinariaId) {
         return this.repo.find({
@@ -38,18 +44,16 @@ let TurnosService = class TurnosService {
             order: { fechaHora: 'ASC' },
         });
     }
-    async actualizarEstado(id, estado) {
-        const turno = await this.repo.findOneBy({ id });
-        if (turno) {
-            turno.estado = estado;
-            return this.repo.save(turno);
-        }
+    async cambiarEstado(id, estado, actorUserId, motivo) {
+        return this.estadoTurno.cambiarEstado(id, estado, actorUserId, motivo);
     }
 };
 exports.TurnosService = TurnosService;
 exports.TurnosService = TurnosService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(turno_entity_1.Turno)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        notificaciones_service_1.NotificacionesService,
+        estado_turno_service_1.EstadoTurnoService])
 ], TurnosService);
 //# sourceMappingURL=turnos.service.js.map

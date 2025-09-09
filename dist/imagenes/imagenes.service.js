@@ -17,9 +17,11 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const imagen_paciente_entity_1 = require("./imagen-paciente.entity");
 const typeorm_2 = require("typeorm");
+const media_service_1 = require("../media/media.service");
 let ImagenesService = class ImagenesService {
-    constructor(repo) {
+    constructor(repo, media) {
         this.repo = repo;
+        this.media = media;
     }
     async guardarImagen(filename, paciente, userVeterinariaId) {
         if (paciente.veterinaria.id !== userVeterinariaId) {
@@ -30,7 +32,19 @@ let ImagenesService = class ImagenesService {
             filepath: `uploads/${filename}`,
             paciente,
         });
-        return this.repo.save(imagen);
+        const saved = await this.repo.save(imagen);
+        const mf = await this.media.register({
+            veterinariaId: userVeterinariaId,
+            uploaderUserId: undefined,
+            s3Key: null,
+            mime: null,
+            sizeBytes: null,
+            checksum: null,
+            originalName: filename,
+            legacyPath: `uploads/${filename}`,
+        });
+        await this.media.attach(userVeterinariaId, mf.id, 'paciente', paciente.id);
+        return saved;
     }
     async obtenerPorPaciente(paciente, userVeterinariaId) {
         if (paciente.veterinaria.id !== userVeterinariaId) {
@@ -46,6 +60,7 @@ exports.ImagenesService = ImagenesService;
 exports.ImagenesService = ImagenesService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(imagen_paciente_entity_1.ImagenPaciente)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        media_service_1.MediaService])
 ], ImagenesService);
 //# sourceMappingURL=imagenes.service.js.map

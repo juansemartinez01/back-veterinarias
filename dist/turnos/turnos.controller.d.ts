@@ -5,5 +5,8 @@ export declare class TurnosController {
     constructor(service: TurnosService);
     crear(dto: CreateTurnoDto, user: any): Promise<import("./turno.entity").Turno>;
     listar(user: any): Promise<import("./turno.entity").Turno[]>;
-    actualizarEstado(id: string, estado: 'pendiente' | 'atendido' | 'cancelado'): Promise<import("./turno.entity").Turno>;
+    actualizarEstado(id: string, body: {
+        estado: 'pendiente' | 'confirmado' | 'atendido' | 'cancelado' | 'no_asistio';
+        motivo?: string;
+    }, user: any): Promise<import("./turno.entity").Turno>;
 }
