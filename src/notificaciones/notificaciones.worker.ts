@@ -19,63 +19,65 @@ export class NotificacionesWorker {
     private readonly dataSource: DataSource,
   ) {}
 
-  // cada minuto
+  // corre cada minuto
   @Cron('0 * * * * *')
   async procesarPendientes() {
     const now = new Date();
 
-    // 1) TX corta: tomar lote con lock y marcarlos como "enviando"
-    const lote = await this.dataSource.transaction('READ COMMITTED', async (manager) => {
-      const q = manager
+    // 1) TX corta: tomar SOLO IDs con lock + skip locked (sin joins)
+    const ids: string[] = await this.dataSource.transaction('READ COMMITTED', async (manager) => {
+      const raws = await manager
         .getRepository(NotificacionProgramada)
         .createQueryBuilder('n')
-        .leftJoinAndSelect('n.turno', 't')
-        .leftJoinAndSelect('t.cliente', 'c')
-        .leftJoinAndSelect('t.paciente', 'p')
+        .select('n.id', 'id') // <- sólo ID
         .where('n.estado = :st', { st: 'pendiente' })
         .andWhere('n.scheduled_at_utc <= :now', { now })
         .orderBy('n.scheduled_at_utc', 'ASC')
-        .take(25)
-        .setLock('pessimistic_write') // FOR UPDATE
-        .setOnLocked('skip_locked')                // SKIP LOCKED
+        .limit(25)
+        .setLock('pessimistic_write')  // FOR UPDATE
+        .setOnLocked('skip_locked')    // SKIP LOCKED
+        .getRawMany<{ id: string }>();
 
-      const pendientes = await q.getMany();
+      const lote = raws.map(r => r.id);
+      if (lote.length === 0) return [];
 
-      if (pendientes.length > 0) {
-        // marcamos como enviando + aumenta intentos, todo dentro de la misma TX
-        await manager
-          .createQueryBuilder()
-          .update(NotificacionProgramada)
-          .set({
-            estado: 'enviando',
-            // ojo: ajustá el nombre real de la columna si es intento_count en snake_case
-            intentoCount: () => '"intento_count" + 1',
-            // opcional: lockedAt: () => 'NOW()',
-          })
-          .where({ id: In(pendientes.map((n) => n.id)) })
-          .execute();
-      }
+      // Marcamos como "enviando" y +1 intento dentro de la misma TX
+      await manager
+        .createQueryBuilder()
+        .update(NotificacionProgramada)
+        .set({
+          estado: 'enviando',
+          // ajustá el nombre exacto de la columna si es snake_case
+          intentoCount: () => '"intento_count" + 1',
+          // lockedAt: () => 'NOW()', // opcional
+        })
+        .where({ id: In(lote) })
+        .execute();
 
-      return pendientes;
+      return lote;
     });
 
-    if (lote.length === 0) return;
+    if (ids.length === 0) return;
 
-    // 2) Envío fuera de la transacción
+    // 2) Fuera de la TX: cargar entidades con relaciones necesarias
+    const lote = await this.repo.find({
+      where: { id: In(ids) },
+      relations: ['turno', 'turno.cliente', 'turno.paciente'],
+      order: { scheduledAtUtc: 'ASC' as any }, // opcional para mantener orden
+    });
+
+    // 3) Procesar y actualizar estado
     for (const n of lote) {
       try {
-        // Datos del destinatario
         const cliente: any = (n as any)?.turno?.cliente;
         const paciente: any = (n as any)?.turno?.paciente;
         const email = cliente?.email;
         const phone = cliente?.telefono;
 
-        // Fechas de turno
         const fechaTurno = new Date((n as any)?.turno?.fechaHora);
         const fstr = fechaTurno.toLocaleDateString();
         const hstr = fechaTurno.toLocaleTimeString();
 
-        // Render simple
         let subject: string | undefined;
         let body = 'Recordatorio de turno';
         if (n.canal === 'email' || n.canal === 'whatsapp') {
@@ -83,16 +85,15 @@ export class NotificacionesWorker {
           body = `Hola ${cliente?.nombre ?? ''}, te recordamos el turno de ${paciente?.nombre ?? 'tu mascota'} el ${fstr} a las ${hstr}.`;
         }
 
-        // Envío
         let res: { id: string } = { id: '' };
-        if (n.canal === 'email' && email) res = await this.email.send({ to: email, subject, body });
-        else if (n.canal === 'whatsapp' && phone) res = await this.wa.send({ to: phone, body });
-        else {
-          // si no hay destino, marcamos error
+        if (n.canal === 'email' && email) {
+          res = await this.email.send({ to: email, subject, body });
+        } else if (n.canal === 'whatsapp' && phone) {
+          res = await this.wa.send({ to: phone, body });
+        } else {
           throw new Error('Destino faltante (email/telefono)');
         }
 
-        // 3) Marcar como enviado
         await this.repo.update(n.id, {
           estado: 'enviado',
           providerMessageId: res.id,
