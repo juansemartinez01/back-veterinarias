@@ -33,6 +33,8 @@ import { InformesModule } from './informes/informes.module';
 
 import { MediaModule } from './media/media.module';
 import { TagsModule } from './tags/tags.module';
+import { RazasModule } from './razas/razas.module';
+import { EspeciesModule } from './especies/especies.module';
 
 
 
@@ -80,6 +82,8 @@ import { TagsModule } from './tags/tags.module';
     InformesModule,
     MediaModule,
     TagsModule,
+    RazasModule,
+    EspeciesModule
     
   ],
 })
