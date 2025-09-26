@@ -20,7 +20,7 @@ export class Paciente {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: "varchar", length: 120 })
+  @Column({ type: "varchar", length: 120, default: "SIN NOMBRE" })
   nombre: string;
 
   // Relación a catálogo de especies
