@@ -35,6 +35,7 @@ import { MediaModule } from './media/media.module';
 import { TagsModule } from './tags/tags.module';
 import { RazasModule } from './razas/razas.module';
 import { EspeciesModule } from './especies/especies.module';
+import { OrganDraftModule } from './integraciones/organ-draft.module';
 
 
 
@@ -83,7 +84,9 @@ import { EspeciesModule } from './especies/especies.module';
     MediaModule,
     TagsModule,
     RazasModule,
-    EspeciesModule
+    EspeciesModule,
+    // Integraciones
+    OrganDraftModule
     
   ],
 })
