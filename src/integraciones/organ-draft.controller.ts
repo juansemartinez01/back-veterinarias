@@ -4,6 +4,7 @@ import { TenantGuard } from "../shared/guards/tenant.guard";
 import { CurrentUser } from "../shared/decorators/current-user.decorator";
 import { OrganDraftInputDto, OrganDraftOutputDto } from "./dto/organ-draft.dto";
 import { OrganDraftService } from "./organ-draft.service";
+import { DraftConclusionInputDto, DraftConclusionOutputDto } from "./dto/draft-report-conclusion.dto";
 
 @Controller("integraciones")
 @UseGuards(JwtAuthGuard, TenantGuard)
@@ -19,6 +20,17 @@ export class OrganDraftController {
     @CurrentUser() user: any
   ): Promise<OrganDraftOutputDto> {
     return this.service.generar(dto, {
+      veterinariaId: user.veterinariaId,
+      userId: user.id,
+    });
+  }
+
+  @Post("draft-report-conclusion")
+  generarConclusion(
+    @Body() dto: DraftConclusionInputDto,
+    @CurrentUser() user: any
+  ): Promise<DraftConclusionOutputDto> {
+    return this.service.generarConclusion(dto, {
       veterinariaId: user.veterinariaId,
       userId: user.id,
     });

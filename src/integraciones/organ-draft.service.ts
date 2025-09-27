@@ -38,7 +38,7 @@ export class OrganDraftService {
 
       // ❯❯ Usamos axiosRef (sin RxJS) para evitar problemas de tipado
       const { data } = await this.http.axiosRef.post<OrganDraftOutputDto>(
-        this.url,
+        this.urlOrganDraft,
         dto,
         {
           headers,
