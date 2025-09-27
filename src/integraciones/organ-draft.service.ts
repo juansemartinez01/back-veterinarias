@@ -7,21 +7,18 @@ import { DraftConclusionInputDto, DraftConclusionOutputDto } from './dto/draft-r
 
 @Injectable()
 export class OrganDraftService {
-  private readonly url = process.env.ORGAN_API_URL!;
+  
   private readonly apiKey = process.env.ORGAN_API_KEY || "";
   private readonly tmo = Number(process.env.ORGAN_TIMEOUT_MS || 15000);
 
   // URLs: podés setear directos o un BASE y se arman solos
-  private readonly base = (process.env.ORGAN_API_BASE || "").replace(/\/$/, "");
-  private readonly urlOrganDraft =
-    process.env.ORGAN_API_URL ||
-    (this.base ? `${this.base}/organ-draft-report` : "");
-  private readonly urlConclusion =
-    process.env.ORGAN_API_URL_CONCLUSION ||
-    (this.base ? `${this.base}/draft-report-conclusion` : "");
+  private readonly epOrganDraft = "/organ-draft-report";
+  private readonly epConclusion = "/draft-report-conclusion";
+
+  private readonly base = process.env.ORGAN_API_BASE || "";
 
   constructor(private readonly http: HttpService) {
-    if (!this.url) {
+    if (!this.base) {
       throw new InternalServerErrorException("ORGAN_API_URL no configurada");
     }
   }
@@ -38,7 +35,7 @@ export class OrganDraftService {
 
       // ❯❯ Usamos axiosRef (sin RxJS) para evitar problemas de tipado
       const { data } = await this.http.axiosRef.post<OrganDraftOutputDto>(
-        this.urlOrganDraft,
+        this.epOrganDraft,
         dto,
         {
           headers,
@@ -74,7 +71,7 @@ export class OrganDraftService {
       if (this.apiKey) headers["Authorization"] = `Bearer ${this.apiKey}`;
 
       const { data } = await this.http.axiosRef.post<DraftConclusionOutputDto>(
-        this.urlConclusion,
+        this.epConclusion,
         dto,
         {
           headers,
