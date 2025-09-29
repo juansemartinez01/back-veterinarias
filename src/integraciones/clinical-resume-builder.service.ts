@@ -16,13 +16,38 @@ export class ClinicalResumeBuilderService {
     @InjectRepository(Informe) private readonly informeRepo: Repository<Informe>
   ) {}
 
-  private toYears(d?: Date | null): number {
+  
+  private toYears(d?: Date | string | null): number {
     if (!d) return 0;
+
+    let birth: Date | null = null;
+
+    if (d instanceof Date) {
+      birth = d;
+    } else if (typeof d === "string") {
+      // Esperamos "YYYY-MM-DD" (tipo DATE). Parseo seguro sin zonas.
+      const onlyDate = d.split("T")[0];
+      const parts = onlyDate.split("-").map((x) => parseInt(x, 10));
+      if (parts.length === 3 && parts.every((n) => Number.isFinite(n))) {
+        const [y, m, day] = parts;
+        // Usamos UTC para evitar off-by-one por TZ
+        birth = new Date(Date.UTC(y, m - 1, day));
+      }
+    }
+
+    if (!birth || isNaN(birth.getTime())) return 0;
+
     const now = new Date();
-    let y = now.getFullYear() - d.getFullYear();
-    const m = now.getMonth() - d.getMonth();
-    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) y--;
-    return Math.max(0, y);
+    // Comparación en UTC para evitar desviaciones de TZ
+    let age = now.getUTCFullYear() - birth.getUTCFullYear();
+    const monthDiff = now.getUTCMonth() + 1 - (birth.getUTCMonth() + 1);
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && now.getUTCDate() < birth.getUTCDate())
+    ) {
+      age--;
+    }
+    return age < 0 ? 0 : age;
   }
 
   private mapTipoToEstudioLabel(t: EstudioTipo): string {
