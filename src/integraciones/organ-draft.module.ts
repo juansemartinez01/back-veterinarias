@@ -4,9 +4,9 @@ import { HttpModule } from "@nestjs/axios";
 import { OrganDraftController } from "./organ-draft.controller";
 import { OrganDraftService } from "./organ-draft.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Paciente } from "src/pacientes/paciente.entity";
-import { Estudio } from "src/estudios/estudio.entity";
-import { Informe } from "src/informes/informe.entity";
+import { Paciente } from "../pacientes/paciente.entity";
+import { Estudio } from "../estudios/estudio.entity";
+import { Informe } from "../informes/informe.entity";
 import { ClinicalResumeBuilderService } from "./clinical-resume-builder.service";
 
 @Module({
