@@ -3,6 +3,11 @@ import { Module } from "@nestjs/common";
 import { HttpModule } from "@nestjs/axios";
 import { OrganDraftController } from "./organ-draft.controller";
 import { OrganDraftService } from "./organ-draft.service";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { Paciente } from "src/pacientes/paciente.entity";
+import { Estudio } from "src/estudios/estudio.entity";
+import { Informe } from "src/informes/informe.entity";
+import { ClinicalResumeBuilderService } from "./clinical-resume-builder.service";
 
 @Module({
   imports: [
@@ -21,9 +26,10 @@ import { OrganDraftService } from "./organ-draft.service";
         };
       },
     }),
+    TypeOrmModule.forFeature([Paciente, Estudio, Informe]),
   ],
   controllers: [OrganDraftController],
-  providers: [OrganDraftService],
+  providers: [OrganDraftService, ClinicalResumeBuilderService],
   exports: [OrganDraftService],
 })
 export class OrganDraftModule {}
