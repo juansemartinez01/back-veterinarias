@@ -1,11 +1,12 @@
 // src/tags/tags.controller.ts
-import { Body, Controller, Get, Param, Post, Delete, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Delete, UseGuards, Patch } from '@nestjs/common';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { TenantGuard } from '../shared/guards/tenant.guard';
 import { CurrentUser } from '../shared/decorators/current-user.decorator';
 import { TagsService } from './tags.service';
+import { UpdateTagDto } from './dto/update-tag.dto';
 
-@Controller('tags')
+@Controller("tags")
 @UseGuards(JwtAuthGuard, TenantGuard)
 export class TagsController {
   constructor(private readonly service: TagsService) {}
@@ -16,22 +17,53 @@ export class TagsController {
   }
 
   @Post()
-  create(@Body() body: { name: string; color?: string }, @CurrentUser() user: any) {
+  create(
+    @Body() body: { name: string; color?: string },
+    @CurrentUser() user: any
+  ) {
     return this.service.create(user.veterinariaId, body.name, body.color);
   }
 
-  @Post(':tagId/attach/:scope/:targetId')
-  attach(@Param('tagId') tagId: string, @Param('scope') scope: 'paciente'|'informe'|'media', @Param('targetId') targetId: string, @CurrentUser() user: any) {
+  @Post(":tagId/attach/:scope/:targetId")
+  attach(
+    @Param("tagId") tagId: string,
+    @Param("scope") scope: "paciente" | "informe" | "media",
+    @Param("targetId") targetId: string,
+    @CurrentUser() user: any
+  ) {
     return this.service.attach(user.veterinariaId, tagId, scope, targetId);
   }
 
-  @Delete(':tagId/detach/:scope/:targetId')
-  detach(@Param('tagId') tagId: string, @Param('scope') scope: 'paciente'|'informe'|'media', @Param('targetId') targetId: string, @CurrentUser() user: any) {
+  @Delete(":tagId/detach/:scope/:targetId")
+  detach(
+    @Param("tagId") tagId: string,
+    @Param("scope") scope: "paciente" | "informe" | "media",
+    @Param("targetId") targetId: string,
+    @CurrentUser() user: any
+  ) {
     return this.service.detach(user.veterinariaId, tagId, scope, targetId);
   }
 
-  @Get(':scope/:targetId')
-  listByTarget(@Param('scope') scope: 'paciente'|'informe'|'media', @Param('targetId') targetId: string, @CurrentUser() user: any) {
+  @Get(":scope/:targetId")
+  listByTarget(
+    @Param("scope") scope: "paciente" | "informe" | "media",
+    @Param("targetId") targetId: string,
+    @CurrentUser() user: any
+  ) {
     return this.service.listByTarget(user.veterinariaId, scope, targetId);
+  }
+
+  @Patch(":id")
+  update(
+    @Param("id") id: string,
+    @Body() dto: UpdateTagDto,
+    @CurrentUser() user: any
+  ) {
+    return this.service.update(user.veterinariaId, id, dto);
+  }
+
+  @Delete(":id")
+  remove(@Param("id") id: string, @CurrentUser() user: any) {
+    return this.service.remove(user.veterinariaId, id);
   }
 }
