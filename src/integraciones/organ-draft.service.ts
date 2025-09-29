@@ -4,16 +4,21 @@ import { firstValueFrom, timeout } from 'rxjs';
 import type { AxiosError } from "axios";
 import { OrganDraftInputDto, OrganDraftOutputDto } from './dto/organ-draft.dto';
 import { DraftConclusionInputDto, DraftConclusionOutputDto } from './dto/draft-report-conclusion.dto';
+import {
+  ClinicalResumeInputDto,
+  ClinicalResumeOutputDto,
+} from "./dto/clinical-resume.dto";
+
 
 @Injectable()
 export class OrganDraftService {
-  
   private readonly apiKey = process.env.ORGAN_API_KEY || "";
   private readonly tmo = Number(process.env.ORGAN_TIMEOUT_MS || 15000);
 
   // URLs: podés setear directos o un BASE y se arman solos
   private readonly epOrganDraft = "/organ-draft-report";
   private readonly epConclusion = "/draft-report-conclusion";
+  private readonly epClinicalResume = "/clinical-resume";
 
   private readonly base = process.env.ORGAN_API_BASE || "";
 
@@ -88,6 +93,38 @@ export class OrganDraftService {
         "Error llamando al servicio externo (draft-report-conclusion)";
       throw new BadGatewayException({
         message: "Draft report conclusion externo falló",
+        status,
+        detail,
+      });
+    }
+  }
+
+  async generarClinicalResume(
+    dto: ClinicalResumeInputDto,
+    contexto: { veterinariaId: string; userId: string }
+  ): Promise<ClinicalResumeOutputDto> {
+    try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (this.apiKey) headers["Authorization"] = `Bearer ${this.apiKey}`;
+
+      const { data } = await this.http.axiosRef.post<ClinicalResumeOutputDto>(
+        this.epClinicalResume,
+        dto,
+        { headers, timeout: this.tmo }
+      );
+
+      return data; // { resumen, usage? }
+    } catch (e) {
+      const err = e as import("axios").AxiosError<any>;
+      const status = err.response?.status;
+      const detail =
+        err.response?.data ??
+        err.message ??
+        "Error llamando al servicio externo (clinical-resume)";
+      throw new BadGatewayException({
+        message: "Clinical resume externo falló",
         status,
         detail,
       });

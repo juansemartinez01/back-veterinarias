@@ -5,6 +5,7 @@ import { CurrentUser } from "../shared/decorators/current-user.decorator";
 import { OrganDraftInputDto, OrganDraftOutputDto } from "./dto/organ-draft.dto";
 import { OrganDraftService } from "./organ-draft.service";
 import { DraftConclusionInputDto, DraftConclusionOutputDto } from "./dto/draft-report-conclusion.dto";
+import { ClinicalResumeInputDto, ClinicalResumeOutputDto } from "./dto/clinical-resume.dto";
 
 @Controller("integraciones")
 @UseGuards(JwtAuthGuard, TenantGuard)
@@ -31,6 +32,17 @@ export class OrganDraftController {
     @CurrentUser() user: any
   ): Promise<DraftConclusionOutputDto> {
     return this.service.generarConclusion(dto, {
+      veterinariaId: user.veterinariaId,
+      userId: user.id,
+    });
+  }
+
+  @Post("clinical-resume")
+  generarClinicalResume(
+    @Body() dto: ClinicalResumeInputDto,
+    @CurrentUser() user: any
+  ): Promise<ClinicalResumeOutputDto> {
+    return this.service.generarClinicalResume(dto, {
       veterinariaId: user.veterinariaId,
       userId: user.id,
     });
