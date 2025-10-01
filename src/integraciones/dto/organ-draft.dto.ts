@@ -8,17 +8,15 @@ import {
   IsString,
   Min,
 } from "class-validator";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 
 export class OrganDraftInputDto {
   @IsString()
   consult_id: string;
 
   // OJO: el sistema externo usa "specie" (no "species")
-  @IsString()
-  @IsIn(["canino", "felino", "equino", "bovino", "otro"], {
-    message: "specie inválida",
-  })
+  @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
+  @IsString({ message: "specie debe ser string" })
   specie: string;
 
   // OJO: el sistema externo usa "raze" (no "raza")
