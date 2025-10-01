@@ -36,6 +36,7 @@ import { TagsModule } from './tags/tags.module';
 import { RazasModule } from './razas/razas.module';
 import { EspeciesModule } from './especies/especies.module';
 import { OrganDraftModule } from './integraciones/organ-draft.module';
+import { SttModule } from './integraciones/stt.module';
 
 
 
@@ -44,11 +45,11 @@ import { OrganDraftModule } from './integraciones/organ-draft.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
-        type: 'postgres',
+        type: "postgres",
         url: process.env.DATABASE_URL,
         autoLoadEntities: true,
-        synchronize: true,//process.env.NODE_ENV !== 'production',
-        ssl: process.env.DATABASE_URL?.includes('sslmode=require')
+        synchronize: true, //process.env.NODE_ENV !== 'production',
+        ssl: process.env.DATABASE_URL?.includes("sslmode=require")
           ? { rejectUnauthorized: false }
           : undefined,
       }),
@@ -86,8 +87,8 @@ import { OrganDraftModule } from './integraciones/organ-draft.module';
     RazasModule,
     EspeciesModule,
     // Integraciones
-    OrganDraftModule
-    
+    OrganDraftModule,
+    SttModule,
   ],
 })
 export class AppModule {}
