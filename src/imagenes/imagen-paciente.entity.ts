@@ -16,7 +16,7 @@ export class ImagenPaciente {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ length: 240 })
+  @Column({ length: 240, nullable: true })
   filename: string;
 
   @Column({ length: 512 })
