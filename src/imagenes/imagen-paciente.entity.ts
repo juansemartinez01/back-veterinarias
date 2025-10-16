@@ -1,20 +1,34 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
-import { Paciente } from '../pacientes/paciente.entity';
+// src/imagenes/imagen-paciente.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  Index,
+  JoinColumn,
+} from "typeorm";
+import { Paciente } from "../pacientes/paciente.entity";
 
-@Entity()
+@Entity("imagen_paciente")
+@Index(["paciente", "fechaSubida"])
 export class ImagenPaciente {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column()
+  @Column({ length: 240 })
   filename: string;
 
-  @Column()
-  filepath: string;
+  @Column({ length: 512 })
+  filepath: string; // p.ej. 'uploads/169999999-123456789.jpg'
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: "timestamptz" })
   fechaSubida: Date;
 
-  @ManyToOne(() => Paciente, paciente => paciente.imagenes)
+  @ManyToOne(() => Paciente, (p) => p.imagenes, {
+    onDelete: "CASCADE",
+    eager: true,
+  })
+  @JoinColumn({ name: "paciente_id" })
   paciente: Paciente;
 }
