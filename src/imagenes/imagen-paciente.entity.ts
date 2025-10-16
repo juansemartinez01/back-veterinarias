@@ -16,10 +16,10 @@ export class ImagenPaciente {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ length: 240 })
+  @Column({ length: 240, default: "unknown.jpg" })
   filename: string;
 
-  @Column({ length: 512 })
+  @Column({ length: 512, default: "uploads/unknown.jpg" })
   filepath: string; // p.ej. 'uploads/169999999-123456789.jpg'
 
   @CreateDateColumn({ type: "timestamptz" })
